@@ -1,3 +1,19 @@
+---
+title: Personal News Feed
+emoji: 📰
+colorFrom: blue
+colorTo: indigo
+sdk: streamlit
+sdk_version: 1.37.0
+app_file: app.py
+pinned: false
+license: mit
+---
+
+# 📰 Personal News Feed
+
+Your personal AI-powered news dashboard.
+
 # Overview
 
 Personal news - select RSS feeds 
