@@ -1,6 +1,6 @@
 __pycache__/
 .env
-app/prompt_templates.py
-app/config.py
+# app/prompt_templates.py
+# app/config.py
 *.mp4
 assets/
