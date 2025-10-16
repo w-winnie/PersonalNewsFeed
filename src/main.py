@@ -2,10 +2,12 @@
 
 import argparse
 
-from app.llm_client import LLMClient
-from app.summary_manager import SummaryManager
-from app.config import Config
+from src.llm_client import LLMClient
+from src.summary_manager import SummaryManager
+from src.config import Config
+from src.logger import setup_logger  
 
+logger = setup_logger(log_to_file=True)  
 
 def main():
     parser = argparse.ArgumentParser(description="Generate summaries from scientific RSS feeds.")
@@ -18,7 +20,7 @@ def main():
 
     args = parser.parse_args()
 
-    print(f"\n Generating summary for subject: {args.subject}, content type: {args.content_type}, audience: {args.audience}")
+    logger.info(f"\n Generating summary for subject: {args.subject}, content type: {args.content_type}, audience: {args.audience}")
 
     llm = LLMClient(api_key=args.api_key)
     manager = SummaryManager(llm)
@@ -38,24 +40,24 @@ def main():
     cost = result.get("bulk_cost")
 
     if not bulk:
-        print("⚠️ No new entries found.")
+        logger.info("No new entries found.")
         return
     
-    print(f"💰 Estimated cost for overall analysis: ${cost:.4f}")
-    print("\n🧠 OVERALL SUMMARY:\n")
-    print(bulk)
+    logger.info(f"Estimated cost for overall analysis: ${cost:.4f}")
+    logger.info("\nOVERALL SUMMARY:\n")
+    logger.info(bulk)
 
-    print("\n🔝 TOP ENTRIES:")
+    logger.info("\nTOP ENTRIES:")
     for i, item in enumerate(top_entries, start=1):
         entry = item["entry"]
         summary = item["summary"]
-        print(f"\n{i}. {entry['title']}")
-        print(f"📅 Title {entry['published'].strftime('%Y-%m-%d')}")
-        print(f"🔗 Link {entry['link']}")
-        print(f"💰 Cost: ${item['cost']:.4f}")
-        print("📝 Item Summary:")
-        print(summary)
-        print("-" * 80)
+        logger.info(f"\n{i}. {entry['title']}")
+        logger.info(f"Title {entry['published'].strftime('%Y-%m-%d')}")
+        logger.info(f"Link {entry['link']}")
+        logger.info(f"Cost: ${item['cost']:.4f}")
+        logger.info("Item Summary:")
+        logger.info(summary)
+        logger.info("-" * 80)
 
 if __name__ == "__main__":
     main()

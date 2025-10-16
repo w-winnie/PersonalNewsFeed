@@ -1,8 +1,8 @@
 #minimalistic app
 import gradio as gr
-from app.config import Config
-from app.llm_client import LLMClient
-from app.summary_manager import SummaryManager
+from src.config import Config
+from src.llm_client import LLMClient
+from src.summary_manager import SummaryManager
 
 # Global manager initialized after user enters API key
 session_mgr = None
