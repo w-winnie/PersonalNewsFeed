@@ -30,6 +30,10 @@ pip freeze > requirements.txt
 <!-- conda env export > environment.yml   -->
 conda env export --from-history > environment.yml  
 
+## env variables:  
+set OPENAO_API_KEY=sk-..
+set LOG_DIR=./data/logs
+
 ## run:
 
 ### Console
