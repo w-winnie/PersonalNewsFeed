@@ -30,14 +30,18 @@ pip freeze > requirements.txt
 <!-- conda env export > environment.yml   -->
 conda env export --from-history > environment.yml  
 
+## env variables:  
+set OPENAO_API_KEY=sk-..
+set LOG_DIR=./data/logs
+
 ## run:
 
 ### Console
-python -m app.main
+python -m src.main
 <!-- python app/main.py -->
 ### Application
 python -m frontend.gradio_app2
-<!-- python frontend/gradio_app.py -->
+<!-- python frontend/gradio_src.py -->
 
 # Folder structure
 rss_feed_app/  
@@ -55,8 +59,8 @@ rss_feed_app/
 │   └── rss_utils.py      # Functions for fetching and parsing RSS feeds  
 ├── frontend/  
 │   ├── __init__.py  
-│   └── gradio_app.py     # Gradio-based frontend application minimal  
-|   └── gradio_app.py     # Gradio-based frontend application final  
+│   └── gradio_src.py     # Gradio-based frontend application minimal  
+|   └── gradio_src.py     # Gradio-based frontend application final  
 ├── data/  
 ├── requirements.txt      # Python dependencies for pip   
 ├── environment.yml       # Conda environment specification  
