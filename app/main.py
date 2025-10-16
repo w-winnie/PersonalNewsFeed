@@ -2,9 +2,9 @@
 
 import argparse
 
-from app.llm_client import LLMClient
-from app.summary_manager import SummaryManager
-from app.config import Config
+from src.llm_client import LLMClient
+from src.summary_manager import SummaryManager
+from src.config import Config
 
 
 def main():
