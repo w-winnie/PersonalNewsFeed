@@ -5,7 +5,7 @@ colorFrom: blue
 colorTo: indigo
 sdk: gradio
 sdk_version: 5.49.0
-app_file: app.py
+app_file: src.py
 pinned: false
 license: mit
 ---
@@ -49,11 +49,11 @@ conda env export --from-history > environment.yml
 ## run:
 
 ### Console
-python -m app.main
+python -m src.main
 <!-- python app/main.py -->
 ### Application
 python -m frontend.gradio_app2
-<!-- python frontend/gradio_app.py -->
+<!-- python frontend/gradio_src.py -->
 
 # Folder structure
 rss_feed_app/  
@@ -71,8 +71,8 @@ rss_feed_app/
 │   └── rss_utils.py      # Functions for fetching and parsing RSS feeds  
 ├── frontend/  
 │   ├── __init__.py  
-│   └── gradio_app.py     # Gradio-based frontend application minimal  
-|   └── gradio_app.py     # Gradio-based frontend application final  
+│   └── gradio_src.py     # Gradio-based frontend application minimal  
+|   └── gradio_src.py     # Gradio-based frontend application final  
 ├── data/  
 ├── requirements.txt      # Python dependencies for pip   
 ├── environment.yml       # Conda environment specification  

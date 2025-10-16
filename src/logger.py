@@ -21,7 +21,7 @@ def setup_logger(name="rss_app", log_to_file=False, log_level=logging.INFO):
     if log_to_file:
         log_dir = os.getenv("LOG_DIR", "logs")
         os.makedirs(log_dir, exist_ok=True)
-        fh = RotatingFileHandler(f"{log_dir}/app.log", maxBytes=5_000_000, backupCount=2)
+        fh = RotatingFileHandler(f"{log_dir}/src.log", maxBytes=5_000_000, backupCount=2)
         fh.setFormatter(formatter)
         logger.addHandler(fh)
 

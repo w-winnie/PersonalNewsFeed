@@ -16,7 +16,7 @@
             "name": "Python Debugger: Module",
             "type": "debugpy",
             "request": "launch",
-            "module": "app.main"
+            "module": "src.main"
         }
     ]
 }

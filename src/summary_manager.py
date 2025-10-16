@@ -1,7 +1,7 @@
 # app/summary_manager.py
-from app.rss_utils import fetch_recent_entries
-from app.summarizer import Summarizer
-from app.config import Config
+from src.rss_utils import fetch_recent_entries
+from src.summarizer import Summarizer
+from src.config import Config
 
 class SummaryManager:
     def __init__(self, llm_client):

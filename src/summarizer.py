@@ -1,6 +1,6 @@
-from app.config import Config
-from app.prompt_templates import PROMPT_TEMPLATES 
-from app.response_parser import extract_top_entries_from_summary
+from src.config import Config
+from src.prompt_templates import PROMPT_TEMPLATES 
+from src.response_parser import extract_top_entries_from_summary
 
 class Summarizer:
     def __init__(self, llm_client):
