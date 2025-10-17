@@ -22,7 +22,7 @@ def summarize_ui(api_key, subject_area, content_type, audience, days_limit):
             audience,
             days_limit=days_limit,
             top_k=5,
-            bulk=True,
+            # bulk=True,
             summarize_top_entries=False
         )
 
