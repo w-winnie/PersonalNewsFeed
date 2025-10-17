@@ -11,7 +11,7 @@ logger = setup_logger(log_to_file=True)
 
 def main():
     parser = argparse.ArgumentParser(description="Generate summaries from scientific RSS feeds.")
-    parser.add_argument("--subject", choices=Config.SUBJECT_AREAS.keys(), default="astrophysics", help="Subject area (astrophysics, ai)")
+    parser.add_argument("--subject", choices=Config.SUBJECT_AREAS.keys(), default="astro", help="Subject area (astro, ai)")
     parser.add_argument("--content_type", choices=Config.CONTENT_TYPES, default="news", help="Content type (news or papers)")
     parser.add_argument("--audience", choices=Config.AUDIENCES.keys(), default="general", help="Target audience (general, astro_enthusiasts, ai_enthusiasts)")
     parser.add_argument("--days", type=int, default=1, help="How many days back to fetch entries")
@@ -25,13 +25,13 @@ def main():
     llm = LLMClient(api_key=args.api_key)
     manager = SummaryManager(llm)
 
-    result = manager.summarize(
+    result = manager.summarize1(
         subject_area=args.subject,
         content_type=args.content_type,
         audience_key=args.audience,
         days_limit=args.days,
         top_k=args.top,
-        bulk=True,
+        # bulk=True,
         summarize_top_entries=True
     )
 
