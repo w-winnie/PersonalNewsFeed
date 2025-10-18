@@ -6,6 +6,7 @@ from src.llm_client import LLMClient
 from src.summary_manager import SummaryManager
 from src.config import Config
 from src.logger import setup_logger  
+from src.response_parser import export_entries_to_csv  
 
 logger = setup_logger(log_to_file=True)  
 
@@ -42,6 +43,10 @@ def main():
     if not bulk:
         logger.info("No new entries found.")
         return
+    
+    csv_path = "all_entries.csv"
+    export_entries_to_csv(result["raw_entries"], csv_path)
+    logger.info(f"\n📁 All entries exported to: {csv_path}")
     
     logger.info(f"Estimated cost for overall analysis: ${cost:.4f}")
     logger.info("\nOVERALL SUMMARY:\n")
