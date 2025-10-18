@@ -3,9 +3,13 @@ import gradio as gr
 from src.config import Config
 from src.llm_client import LLMClient
 from src.summary_manager import SummaryManager
+import pandas as pd 
+import io
+# from src.response_parser import export_entries_to_csv
+import tempfile
+import os
 
 session_mgr = None
-
 
 # ----------------------------
 # Helper Functions
@@ -19,6 +23,24 @@ def get_feeds(subject, ctype):
         return "_No feeds configured for this selection._"
     return "\n".join([f"- {url}" for url in feeds])
 
+def export_table_to_csv(dataframe):
+    csv_buffer = io.StringIO()
+    dataframe.to_csv(csv_buffer, index=False)
+    return csv_buffer.getvalue()
+
+def handle_export(entry_table_df):
+    if isinstance(entry_table_df, pd.DataFrame) and not entry_table_df.empty:
+        csv_str = export_table_to_csv(entry_table_df)
+
+        output_dir = "exports"
+        os.makedirs(output_dir, exist_ok=True)  
+
+        path = os.path.join(output_dir, "exported_entries.csv")
+        with open(path, "w", encoding="utf-8", newline="") as f:
+            f.write(csv_str)
+        return path
+
+    return None
 
 # ----------------------------
 # Main Summarization
@@ -48,6 +70,7 @@ def summarize_ui(api_key, subject_area, content_type, audience, days_limit, top_
         "Starting summarization......",
         feed_list_md,
         gr.update(visible=True, value="⏳ Working..."),
+        []
     )
 
     progress_text = ""
@@ -71,6 +94,7 @@ def summarize_ui(api_key, subject_area, content_type, audience, days_limit, top_
                 f"### Progress Log\n{progress_text}",
                 feed_list_md,
                 gr.update(visible=True, value=result),
+                []
             )
         elif isinstance(result, dict):
             result_obj = result
@@ -87,6 +111,21 @@ def summarize_ui(api_key, subject_area, content_type, audience, days_limit, top_
         status_msg = f"✅ Top **{len(raw_entries)} of {total_entries} entries processed** from {len(feeds)} feed(s)."
         progress_log = f"### Progress Log\n{progress_text}"
 
+        # table_data = [{
+        #     "title": e.get("title"),
+        #     "published": e.get("published"),
+        #     "link": e.get("link"),
+        #     "Summary": e.get("summary", "")
+        # } for e in raw_entries]
+
+        table_data = pd.DataFrame([{
+            "Title": e.get("title", ""),
+            "Published": str(e.get("published", "")),
+            "Link": e.get("link", ""),
+            "Summary": e.get("summary", "")
+        } for e in raw_entries])
+
+
         yield (
             bulk_with_cost,
             gr.update(choices=options, visible=True),
@@ -94,7 +133,9 @@ def summarize_ui(api_key, subject_area, content_type, audience, days_limit, top_
             f"{status_msg}\n\n{progress_log}",
             feed_list_md,
             gr.update(visible=False),
+            table_data 
         )
+
 
 # ----------------------------
 # Single Entry Summarization
@@ -144,6 +185,14 @@ with gr.Blocks(
             background: var(--block-background-fill);
             border: 1px solid var(--block-border-color);
         }
+        #entry-table .wrap {
+            white-space: normal !important;
+        }
+        #entry-table td {
+            word-break: break-word;
+            max-width: 200px;
+        }
+
     """,
 ) as ui:
 
@@ -153,7 +202,7 @@ with gr.Blocks(
     with gr.Row():
         api_key = gr.Textbox(label="🔑 OpenAI API Key", type="password", placeholder="sk-...")
         days = gr.Slider(1, 7, value=1, step=1, label="Days Window")
-        top = gr.Slider(5, 30, value=1, step=1, label="Top Entries")
+        top = gr.Slider(5, 30, value=5, step=1, label="Top Entries")
 
     with gr.Row():
         subject = gr.Dropdown(list(Config.SUBJECT_AREAS.keys()), label="🪐 Subject Area")
@@ -176,19 +225,33 @@ with gr.Blocks(
 
     # --- Results ---
     bulk_output = gr.Markdown(label="🧠 Overall Summary")
-    top_dropdown = gr.Dropdown(label="🔝 Select a Top Entry", interactive=True, visible=False)
+    top_dropdown = gr.Dropdown(label="🔝 Select an Entry", interactive=True, visible=False)
+    summarize_entry_btn = gr.Button("🧩 Summarize This Entry", variant="secondary", visible=False)
     raw_state = gr.State()
     detail_out = gr.Markdown(label="📘 Detailed Entry Summary")
+    # entry_table = gr.Dataframe(label="📋 All Retrieved Entries", interactive=False)
+    entry_table = gr.Dataframe(
+        label="📋 All Retrieved Entries",
+        interactive=False,
+        headers=["Title", "Published", "Link", "Summary"],
+        row_count=10,
+        col_count=(4, "fixed"),
+        wrap=True,
+        # max_rows=50,
+        elem_id="entry-table"
+    )
+
+    with gr.Row():
+        export_btn = gr.Button("📁 Export Table as CSV")
+        download_csv = gr.File(label="Download CSV", interactive=False)
 
     summarize_btn.click(
         fn=summarize_ui,
         inputs=[api_key, subject, ctype, audience, days, top],
-        outputs=[bulk_output, top_dropdown, raw_state, status, feeds_preview, loading_box],
+        outputs=[bulk_output, top_dropdown, raw_state, status, feeds_preview, loading_box, entry_table],
         show_progress=False,
         queue=True,
     )
-
-    summarize_entry_btn = gr.Button("🧩 Summarize This Entry", variant="secondary", visible=False)
 
     def toggle_summary_button(selection):
         """Show the button only when an entry is selected."""
@@ -205,5 +268,8 @@ with gr.Blocks(
         inputs=[raw_state, top_dropdown, subject, audience, ctype],
         outputs=detail_out,
     )
+
+    export_btn.click(fn=handle_export, inputs=[entry_table], outputs=[download_csv])
+
 
 ui.launch()
