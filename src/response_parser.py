@@ -1,6 +1,19 @@
 import re
 from urllib.parse import urlparse, urlunparse
 from difflib import SequenceMatcher
+import pandas as pd
+import os
+
+def export_entries_to_csv(entries, output_path):
+    """Export list of RSS entries to a CSV file."""
+    df = pd.DataFrame([{
+        "title": e.get("title", ""),
+        "published": e.get("published", ""),
+        "link": e.get("link", ""),
+        "summary": e.get("summary", ""),
+    } for e in entries])
+    df.to_csv(output_path, index=False)
+    return output_path
 
 def normalize_url(url):
     """Strip trailing slashes and UTM params for better matching."""
