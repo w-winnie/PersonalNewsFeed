@@ -69,4 +69,8 @@ rss_feed_app/
 └── .gitignore            # Git ignore file  
 
 # Deployment instructions
+HF private space  
 
+git checkout hf main   
+git pull origin main --allow-unrelated-histories   
+git push hf main    
