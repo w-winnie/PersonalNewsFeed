@@ -71,6 +71,7 @@ rss_feed_app/
 # Deployment instructions
 HF private space  
 
+git remote add hf <hf-repo-url>
 git checkout hf main   
 git pull origin main --allow-unrelated-histories   
 git push hf main    
