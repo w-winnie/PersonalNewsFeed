@@ -5,7 +5,7 @@ colorFrom: blue
 colorTo: indigo
 sdk: gradio
 sdk_version: 5.49.0
-app_file: src.py
+app_file: app.py
 pinned: false
 license: mit
 ---
