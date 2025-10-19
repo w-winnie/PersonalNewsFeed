@@ -1,4 +1,5 @@
 # app/token_utils.py
+import tiktoken
 
 MODEL_PRICING = {
     "gpt-4": {
@@ -23,9 +24,12 @@ MODEL_PRICING = {
     }
 }
 
+def estimate_tokens(model_name, text):
+    enc = tiktoken.encoding_for_model(model_name)
+    return len(enc.encode(text))
 
 def estimate_openai_cost(model_name, prompt_tokens, completion_tokens):
-    pricing = MODEL_PRICING.get(model_name, MODEL_PRICING["gpt-4"])  # default fallback
+    pricing = MODEL_PRICING.get(model_name) 
 
     input_cost = (prompt_tokens / 1000) * pricing["input"]
     output_cost = (completion_tokens / 1000) * pricing["output"]

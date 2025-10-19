@@ -5,7 +5,7 @@ class Config:
     CONTENT_TYPES = ["news", "papers"]
 
     SUBJECT_AREAS = {
-        "astrophysics": {
+        "astro": {
             "news": [
                 # put astrophysics news feeds here
             ],

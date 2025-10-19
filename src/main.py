@@ -5,11 +5,14 @@ import argparse
 from src.llm_client import LLMClient
 from src.summary_manager import SummaryManager
 from src.config import Config
+from src.logger import setup_logger  
+from src.response_parser import export_entries_to_csv  
 
+logger = setup_logger(log_to_file=True)  
 
 def main():
     parser = argparse.ArgumentParser(description="Generate summaries from scientific RSS feeds.")
-    parser.add_argument("--subject", choices=Config.SUBJECT_AREAS.keys(), default="astrophysics", help="Subject area (astrophysics, ai)")
+    parser.add_argument("--subject", choices=Config.SUBJECT_AREAS.keys(), default="astro", help="Subject area (astro, ai)")
     parser.add_argument("--content_type", choices=Config.CONTENT_TYPES, default="news", help="Content type (news or papers)")
     parser.add_argument("--audience", choices=Config.AUDIENCES.keys(), default="general", help="Target audience (general, astro_enthusiasts, ai_enthusiasts)")
     parser.add_argument("--days", type=int, default=1, help="How many days back to fetch entries")
@@ -18,18 +21,18 @@ def main():
 
     args = parser.parse_args()
 
-    print(f"\n Generating summary for subject: {args.subject}, content type: {args.content_type}, audience: {args.audience}")
+    logger.info(f"\n Generating summary for subject: {args.subject}, content type: {args.content_type}, audience: {args.audience}")
 
     llm = LLMClient(api_key=args.api_key)
     manager = SummaryManager(llm)
 
-    result = manager.summarize(
+    result = manager.summarize1(
         subject_area=args.subject,
         content_type=args.content_type,
         audience_key=args.audience,
         days_limit=args.days,
         top_k=args.top,
-        bulk=True,
+        # bulk=True,
         summarize_top_entries=True
     )
 
@@ -38,24 +41,28 @@ def main():
     cost = result.get("bulk_cost")
 
     if not bulk:
-        print("⚠️ No new entries found.")
+        logger.info("No new entries found.")
         return
     
-    print(f"💰 Estimated cost for overall analysis: ${cost:.4f}")
-    print("\n🧠 OVERALL SUMMARY:\n")
-    print(bulk)
+    csv_path = "all_entries.csv"
+    export_entries_to_csv(result["raw_entries"], csv_path)
+    logger.info(f"\n📁 All entries exported to: {csv_path}")
+    
+    logger.info(f"Estimated cost for overall analysis: ${cost:.4f}")
+    logger.info("\nOVERALL SUMMARY:\n")
+    logger.info(bulk)
 
-    print("\n🔝 TOP ENTRIES:")
+    logger.info("\nTOP ENTRIES:")
     for i, item in enumerate(top_entries, start=1):
         entry = item["entry"]
         summary = item["summary"]
-        print(f"\n{i}. {entry['title']}")
-        print(f"📅 Title {entry['published'].strftime('%Y-%m-%d')}")
-        print(f"🔗 Link {entry['link']}")
-        print(f"💰 Cost: ${item['cost']:.4f}")
-        print("📝 Item Summary:")
-        print(summary)
-        print("-" * 80)
+        logger.info(f"\n{i}. {entry['title']}")
+        logger.info(f"Title {entry['published'].strftime('%Y-%m-%d')}")
+        logger.info(f"Link {entry['link']}")
+        logger.info(f"Cost: ${item['cost']:.4f}")
+        logger.info("Item Summary:")
+        logger.info(summary)
+        logger.info("-" * 80)
 
 if __name__ == "__main__":
     main()
