@@ -43,8 +43,8 @@ conda env create -f environment.yml
 
 ## env update:  
 pip freeze > requirements.txt  
-<!-- conda env export > environment.yml   -->
-conda env export --from-history > environment.yml  
+conda env export > environment.yml  
+<!-- conda env export --from-history > environment.yml   -->
 
 ## env variables:  
 set OPENAO_API_KEY=sk-..
