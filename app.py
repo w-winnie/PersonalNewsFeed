@@ -296,7 +296,7 @@ class SummarizeEntryRequest(BaseModel):
 fastapi_app = FastAPI()
 
 # CORS: allow your proxy Space and later your WordPress origin to fetch JSON
-app.add_middleware(
+fastapi_app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],   # tighten later to only your domains
     allow_credentials=False,
@@ -346,7 +346,7 @@ def _run_bulk_summarize(req: SummarizeRequest):
     }
 
 # ---------- API ROUTES ----------
-@app.post("/api/summarize")
+@fastapi_app.post("/api/summarize")
 def api_summarize(req: SummarizeRequest):
     try:
         if not req.api_key:
@@ -357,7 +357,7 @@ def api_summarize(req: SummarizeRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/api/summarize_entry")
+@fastapi_app.post("/api/summarize_entry")
 def api_summarize_entry(req: SummarizeEntryRequest):
     try:
         if not req.api_key:
