@@ -2,7 +2,7 @@
 # Personal News Feed — Gradio + FastAPI hybrid for Hugging Face Spaces
 # ================================================================
 
-FROM python:3.9
+FROM python:3.11
 
 # Create a non-root user for security
 RUN useradd -m -u 1000 user
