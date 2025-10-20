@@ -3,12 +3,12 @@ title: Personal News Feed
 emoji: 📰
 colorFrom: blue
 colorTo: indigo
-sdk: fastapi
-sdk_version: 0.115.0
+sdk: docker         
 app_file: app.py
 pinned: false
 license: mit
 ---
+
 
 # 📰 Personal News Feed
 
