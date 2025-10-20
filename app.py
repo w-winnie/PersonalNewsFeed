@@ -26,24 +26,17 @@ def get_feeds(subject, ctype):
         return "_No feeds configured for this selection._"
     return "\n".join([f"- {url}" for url in feeds])
 
-def export_table_to_csv(dataframe):
-    csv_buffer = io.StringIO()
-    dataframe.to_csv(csv_buffer, index=False)
-    return csv_buffer.getvalue()
 
 def handle_export(entry_table_df):
     if isinstance(entry_table_df, pd.DataFrame) and not entry_table_df.empty:
-        csv_str = export_table_to_csv(entry_table_df)
-
-        output_dir = "exports"
-        os.makedirs(output_dir, exist_ok=True)  
-
-        path = os.path.join(output_dir, "exported_entries.csv")
-        with open(path, "w", encoding="utf-8", newline="") as f:
-            f.write(csv_str)
-        return path
-
+        csv_buf = io.StringIO()
+        entry_table_df.to_csv(csv_buf, index=False)
+        tmp_path = os.path.join(tempfile.gettempdir(), "exported_entries.csv")
+        with open(tmp_path, "w", encoding="utf-8") as f:
+            f.write(csv_buf.getvalue())
+        return tmp_path
     return None
+
 
 # ----------------------------
 # Main Summarization
