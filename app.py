@@ -293,7 +293,7 @@ class SummarizeEntryRequest(BaseModel):
     audience: str
 
 # ---------- FASTAPI APP ----------
-app = FastAPI()
+fastapi_app = FastAPI()
 
 # CORS: allow your proxy Space and later your WordPress origin to fetch JSON
 app.add_middleware(
@@ -303,9 +303,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# Mount Gradio UI at the root path
-# app = gr.mount_gradio_app(app, ui, path="/")
 
 # ---------- HELPERS ----------
 def _run_bulk_summarize(req: SummarizeRequest):
@@ -412,4 +409,4 @@ def api_summarize_entry(req: SummarizeEntryRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-app = gr.mount_gradio_app(app, ui, path="/")
+app = gr.mount_gradio_app(fastapi_app , ui, path="/")
