@@ -3,8 +3,8 @@ title: Personal News Feed
 emoji: 📰
 colorFrom: blue
 colorTo: indigo
-sdk: gradio
-sdk_version: 5.49.0
+sdk: fastapi
+sdk_version: 0.115.0
 app_file: app.py
 pinned: false
 license: mit
