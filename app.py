@@ -412,3 +412,4 @@ def api_summarize_entry(req: SummarizeEntryRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+app = gr.mount_gradio_app(app, ui, path="/")
