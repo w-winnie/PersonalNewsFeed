@@ -54,10 +54,17 @@ set LOG_DIR=./data/logs
 
 ### Console
 python -m src.main
-<!-- python app/main.py -->
+<!-- python app/main.py -->  
+
 ### Application
-python -m frontend.gradio_app2
-<!-- python frontend/gradio_src.py -->
+python -m frontend.gradio_app2  
+<!-- python frontend/gradio_src.py -->  
+http://127.0.0.1:7860   
+
+### Api
+uvicorn api.controller:app --reload   
+http://127.0.0.1:8000/docs  
+
 
 # Folder structure
 rss_feed_app/  
@@ -86,3 +93,8 @@ rss_feed_app/
 
 # Deployment instructions
 
+HF private space
+
+git remote add hf git checkout hf main
+git pull origin main --allow-unrelated-histories
+git push hf main

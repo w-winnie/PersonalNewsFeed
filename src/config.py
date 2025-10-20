@@ -64,7 +64,7 @@ class Config:
                 "https://rss.arxiv.org/rss/stat.ML",
                 "https://rss.arxiv.org/rss/cs.LG",
                 "https://rss.arxiv.org/rss/cs.CV",  
-                "https://rss.arxiv.org/rss/cs.CL"
+                "https://rss.arxiv.org/rss/cs.CL",
                 "https://rss.arxiv.org/rss/cs.GR",
                 "https://rss.arxiv.org/rss/cs.GT",
                 "https://rss.arxiv.org/rss/cs.CG",
