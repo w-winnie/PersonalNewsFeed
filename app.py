@@ -8,6 +8,9 @@ import io
 # from src.response_parser import export_entries_to_csv
 import tempfile
 import os
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
 
 session_mgr = None
 
@@ -23,24 +26,17 @@ def get_feeds(subject, ctype):
         return "_No feeds configured for this selection._"
     return "\n".join([f"- {url}" for url in feeds])
 
-def export_table_to_csv(dataframe):
-    csv_buffer = io.StringIO()
-    dataframe.to_csv(csv_buffer, index=False)
-    return csv_buffer.getvalue()
 
 def handle_export(entry_table_df):
     if isinstance(entry_table_df, pd.DataFrame) and not entry_table_df.empty:
-        csv_str = export_table_to_csv(entry_table_df)
-
-        output_dir = "exports"
-        os.makedirs(output_dir, exist_ok=True)  
-
-        path = os.path.join(output_dir, "exported_entries.csv")
-        with open(path, "w", encoding="utf-8", newline="") as f:
-            f.write(csv_str)
-        return path
-
+        csv_buf = io.StringIO()
+        entry_table_df.to_csv(csv_buf, index=False)
+        tmp_path = os.path.join(tempfile.gettempdir(), "exported_entries.csv")
+        with open(tmp_path, "w", encoding="utf-8") as f:
+            f.write(csv_buf.getvalue())
+        return tmp_path
     return None
+
 
 # ----------------------------
 # Main Summarization
@@ -271,4 +267,143 @@ with gr.Blocks(
     export_btn.click(fn=handle_export, inputs=[entry_table], outputs=[download_csv])
 
 
-ui.launch()
+# ui.launch()
+
+# ---------- API MODELS ----------
+class SummarizeRequest(BaseModel):
+    api_key: str
+    subject_area: str
+    content_type: str
+    audience: str
+    days_limit: int = 1
+    top_entries: int = 5
+
+class SummarizeEntryRequest(BaseModel):
+    api_key: str
+    selection: int  # 1-based index from the UI list, or pass the raw entry index you prefer
+    subject_area: str
+    content_type: str
+    audience: str
+
+# ---------- FASTAPI APP ----------
+fastapi_app = FastAPI()
+
+# CORS: allow your proxy Space and later your WordPress origin to fetch JSON
+fastapi_app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],   # tighten later to only your domains
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# ---------- HELPERS ----------
+def _run_bulk_summarize(req: SummarizeRequest):
+    # reuse your existing code paths; run once and collect final result
+    llm = LLMClient(api_key=req.api_key)
+    mgr = SummaryManager(llm)
+
+    result_obj = None
+    for result in mgr.summarize(
+        subject_area=req.subject_area,
+        content_type=req.content_type,
+        audience_key=req.audience,
+        days_limit=req.days_limit,
+        top_k=req.top_entries,
+        summarize_top_entries=False
+    ):
+        if isinstance(result, dict):
+            result_obj = result
+
+    if not result_obj:
+        return {
+            "bulk_summary": "No new articles found.",
+            "bulk_cost": 0.0,
+            "total_entries": 0,
+            "entries": []
+        }
+
+    # Normalize to a stable JSON shape the proxy/WordPress can consume
+    entries = [{
+        "title": e.get("title", ""),
+        "published": str(e.get("published", "")),
+        "link": e.get("link", ""),
+        "summary": e.get("summary", "")
+    } for e in result_obj.get("raw_entries", [])]
+
+    return {
+        "bulk_summary": result_obj.get("bulk_summary") or "No new articles found.",
+        "bulk_cost": float(result_obj.get("bulk_cost", 0.0)),
+        "total_entries": int(result_obj.get("total_entries", 0)),
+        "entries": entries
+    }
+
+# ---------- API ROUTES ----------
+@fastapi_app.get("/api/health")
+def health():
+    return {"status": "ok"}
+
+@fastapi_app.post("/api/summarize")
+def api_summarize(req: SummarizeRequest):
+    try:
+        if not req.api_key:
+            raise HTTPException(status_code=400, detail="Missing API key")
+        return _run_bulk_summarize(req)
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@fastapi_app.post("/api/summarize_entry")
+def api_summarize_entry(req: SummarizeEntryRequest):
+    try:
+        if not req.api_key:
+            raise HTTPException(status_code=400, detail="Missing API key")
+
+        llm = LLMClient(api_key=req.api_key)
+        mgr = SummaryManager(llm)
+
+        # We need an entry to summarize; a simple approach is to re-fetch the same bulk
+        bulk = _run_bulk_summarize(SummarizeRequest(
+            api_key=req.api_key,
+            subject_area=req.subject_area,
+            content_type=req.content_type,
+            audience=req.audience,
+            days_limit=1,
+            top_entries=10
+        ))
+
+        entries = bulk.get("entries", [])
+        idx = max(0, min(len(entries)-1, req.selection - 1))
+        entry = entries[idx] if entries else None
+        if not entry:
+            raise HTTPException(status_code=404, detail="No entries found")
+
+        # Prepare the shape expected by your existing summarize_selected()
+        raw_like = {
+            "title": entry["title"],
+            "published": entry["published"],
+            "link": entry["link"],
+            "summary": entry.get("summary", "")
+        }
+
+        result = mgr.summarize_selected(
+            raw_like,
+            req.subject_area,
+            req.audience,
+            req.content_type
+        )
+
+        return {
+            "title": entry["title"],
+            "published": entry["published"],
+            "link": entry["link"],
+            "summary": result.get("summary", ""),
+            "cost": float(result.get("cost", 0.0))
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+app = gr.mount_gradio_app(fastapi_app , ui, path="/")

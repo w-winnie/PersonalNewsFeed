@@ -13,6 +13,7 @@ feedparser==6.0.12
 ffmpy==0.6.2
 filelock==3.19.1
 fsspec==2025.9.0
+git-filter-repo==2.47.0
 gradio==5.49.0
 gradio_client==1.13.3
 groovy==0.1.2
@@ -26,7 +27,7 @@ jiter==0.11.0
 markdown-it-py==4.0.0
 MarkupSafe==3.0.3
 mdurl==0.1.2
-numpy==2.3.3
+numpy==2.2.6
 openai==2.2.0
 orjson==3.11.3
 packaging==25.0
