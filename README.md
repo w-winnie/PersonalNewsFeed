@@ -26,7 +26,7 @@ Personal news - select RSS feeds
 <!-- ![Demo](assets\ui.gif)  -->
 ![Demo](https://raw.githubusercontent.com/w-winnie/PersonalNewsFeed/main/assets/ui.gif)  
 
-
+Deployed on a private repo - can be accessed through a proxy UI at - https://huggingface.co/spaces/WingedThought/PersonalNewsFeed_Public
 
 # HOW TO RUN
 
@@ -103,3 +103,4 @@ curl -v -X POST "https://USERNAME-SPACENAME.hf.space/api/summarize" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer hf_TOKEN" \
   -d '{"api_key":"sk-proj-TOKEN","subject_area":"astro","content_type":"news","audience":"general","days_limit":1,"top_entries":3}'
+
