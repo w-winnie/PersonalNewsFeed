@@ -93,8 +93,13 @@ rss_feed_app/
 
 # Deployment instructions
 
-HF private space
+HF private space - https://USERNAME-SPACENAME.hf.space
 
 git remote add hf git checkout hf main
 git pull origin main --allow-unrelated-histories
 git push hf main
+
+curl -v -X POST "https://USERNAME-SPACENAME.hf.space/api/summarize" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer hf_TOKEN" \
+  -d '{"api_key":"sk-proj-TOKEN","subject_area":"astro","content_type":"news","audience":"general","days_limit":1,"top_entries":3}'
