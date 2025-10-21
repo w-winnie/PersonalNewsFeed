@@ -1,3 +1,19 @@
+---
+title: Personal News Feed
+emoji: 📰
+colorFrom: blue
+colorTo: indigo
+sdk: docker         
+app_file: app.py
+pinned: false
+license: mit
+---
+
+
+# 📰 Personal News Feed
+
+Your personal AI-powered news dashboard.
+
 # Overview
 
 Personal news - select RSS feeds 
@@ -27,8 +43,8 @@ conda env create -f environment.yml
 
 ## env update:  
 pip freeze > requirements.txt  
-<!-- conda env export > environment.yml   -->
-conda env export --from-history > environment.yml  
+conda env export > environment.yml  
+<!-- conda env export --from-history > environment.yml   -->
 
 ## env variables:  
 set OPENAO_API_KEY=sk-..
@@ -38,10 +54,17 @@ set LOG_DIR=./data/logs
 
 ### Console
 python -m src.main
-<!-- python app/main.py -->
+<!-- python app/main.py -->  
+
 ### Application
-python -m frontend.gradio_app2
-<!-- python frontend/gradio_src.py -->
+python -m frontend.gradio_app2  
+<!-- python frontend/gradio_src.py -->  
+http://127.0.0.1:7860   
+
+### Api
+uvicorn api.controller:app --reload   
+http://127.0.0.1:8000/docs  
+
 
 # Folder structure
 rss_feed_app/  
@@ -69,9 +92,14 @@ rss_feed_app/
 └── .gitignore            # Git ignore file  
 
 # Deployment instructions
-HF private space  
 
-git remote add hf <hf-repo-url>
-git checkout hf main   
-git pull origin main --allow-unrelated-histories   
-git push hf main    
+HF private space - https://USERNAME-SPACENAME.hf.space
+
+git remote add hf git checkout hf main
+git pull origin main --allow-unrelated-histories
+git push hf main
+
+curl -v -X POST "https://USERNAME-SPACENAME.hf.space/api/summarize" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer hf_TOKEN" \
+  -d '{"api_key":"sk-proj-TOKEN","subject_area":"astro","content_type":"news","audience":"general","days_limit":1,"top_entries":3}'
